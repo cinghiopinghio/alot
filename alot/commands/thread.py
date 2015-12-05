@@ -890,9 +890,6 @@ class OpenAttachmentCommand(Command):
                 nametemplate = entry.get('nametemplate', '%s')
                 prefix, suffix = parse_mailcap_nametemplate(nametemplate)
 
-                nametemplate = entry.get('nametemplate', '%s')
-                prefix, suffix = parse_mailcap_nametemplate(nametemplate)
-
                 filenamehook = settings.get_hook('attachment_file_name')
                 if filenamehook:
                     # get filename
