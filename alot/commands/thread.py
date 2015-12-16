@@ -890,29 +890,11 @@ class OpenAttachmentCommand(Command):
                 nametemplate = entry.get('nametemplate', '%s')
                 prefix, suffix = parse_mailcap_nametemplate(nametemplate)
 
-                # here I want to put a nice looking filename
-                # mc-prefix + s-filename + XXXXX + .EXT
-                # mc-prefix: prefix from mailcap
-                # x-filename: sanitized filename
-                # XXXX: random string from NamedTemporaryFile
-                # .EXT: extension either from mailcap or from filename
-                logging.debug('mailcap prefix: %s' % prefix)
-                logging.debug('mailcap suffix: %s' % suffix)
-
-                # get filename
-                filename = self.attachment.get_filename()
-                if filename is not None:
-                    # filename sanitation
-                    valid_chars = '-_.() abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-                    filename = ''.join(c for c in filename if c in valid_chars)
-                    filename = filename.replace(' ', '_')
-
-                    head, ext = os.path.splitext(filename)
-
-                    # if suffix is already present in the mailcap use that one
-                    if ext != '' and suffix == '':
-                        suffix = ext
-                    prefix = prefix + head
+                filenamehook = settings.get_hook('attachment_file_name')
+                if filenamehook:
+                    # get filename
+                    filename = self.attachment.get_filename()
+                    prefix, suffix = filenamehook(filename, prefix, suffix)
 
                 tmpfile = tempfile.NamedTemporaryFile(delete=False,
                                                       prefix=prefix,
